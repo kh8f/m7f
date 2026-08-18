@@ -1,0 +1,18 @@
+{
+  "name": "m7f",
+  "version": "1.0.0",
+  "description": "تطبيق ويب (HTML/CSS/JS خام، بدون أي مكتبات خارجية) يعمل بالكامل بدون إنترنت. كل البيانات تُخزَّن على الجهاز نفسه عبر `localStorage` — لا يوجد أي اتصال بأي خادم.",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@capacitor/android": "^8.5.0",
+    "@capacitor/cli": "^8.5.0",
+    "@capacitor/core": "^8.5.0"
+  }
+}

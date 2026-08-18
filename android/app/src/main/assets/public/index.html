@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
+<meta name="theme-color" content="#0B3D2E">
+<title>الخزنة — إدارة أموالك</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ===== شاشة القفل (PIN) ===== -->
+<div id="lockScreen" class="lock-screen hidden">
+  <div class="lock-card">
+    <div class="lock-dial">
+      <svg viewBox="0 0 100 100" class="dial-svg">
+        <circle cx="50" cy="50" r="42" class="dial-ring"/>
+        <circle cx="50" cy="18" r="4" class="dial-pin"/>
+      </svg>
+    </div>
+    <h2>أدخل الرمز</h2>
+    <div class="pin-dots" id="pinDots">
+      <span></span><span></span><span></span><span></span>
+    </div>
+    <div class="pin-pad" id="pinPad">
+      <button data-num="1">1</button>
+      <button data-num="2">2</button>
+      <button data-num="3">3</button>
+      <button data-num="4">4</button>
+      <button data-num="5">5</button>
+      <button data-num="6">6</button>
+      <button data-num="7">7</button>
+      <button data-num="8">8</button>
+      <button data-num="9">9</button>
+      <button class="ghost" id="pinCancel">إلغاء</button>
+      <button data-num="0">0</button>
+      <button class="ghost" id="pinDel">⌫</button>
+    </div>
+    <p class="lock-error" id="lockError"></p>
+  </div>
+</div>
+
+<!-- ===== التطبيق ===== -->
+<div id="app" class="app">
+
+  <!-- ===== الرئيسية ===== -->
+  <section class="screen active" id="screen-home" data-screen="home">
+    <header class="home-header">
+      <div class="greet">
+        <span class="eyebrow" id="dateToday">—</span>
+        <h1>خزنتي</h1>
+      </div>
+      <button class="icon-btn" id="btnNotifs" aria-label="التنبيهات">
+        <svg viewBox="0 0 24 24" width="22" height="22"><path d="M12 2a6 6 0 0 0-6 6v3.586l-1.707 1.707A1 1 0 0 0 5 15h14a1 1 0 0 0 .707-1.707L18 11.586V8a6 6 0 0 0-6-6zm0 20a2.5 2.5 0 0 0 2.45-2h-4.9A2.5 2.5 0 0 0 12 22z" fill="currentColor"/></svg>
+        <span class="badge-dot hidden" id="notifDot"></span>
+      </button>
+    </header>
+
+    <div class="vault-stage">
+      <svg id="vaultSvg" viewBox="0 0 320 260" class="vault-svg">
+        <defs>
+          <linearGradient id="doorGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#E8C766"/>
+            <stop offset="100%" stop-color="#B8912E"/>
+          </linearGradient>
+          <radialGradient id="glow" cx="50%" cy="45%" r="60%">
+            <stop offset="0%" stop-color="#FFE9A8" stop-opacity="0.9"/>
+            <stop offset="100%" stop-color="#FFE9A8" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+        <ellipse cx="160" cy="230" rx="120" ry="14" class="vault-shadow"/>
+        <g id="vaultBody">
+          <rect x="55" y="40" width="210" height="170" rx="18" class="vault-frame"/>
+          <circle cx="160" cy="125" r="150" fill="url(#glow)" id="vaultGlow" opacity="0"/>
+          <g id="vaultDoor" class="vault-door">
+            <circle cx="160" cy="125" r="78" fill="url(#doorGrad)" class="vault-door-face"/>
+            <circle cx="160" cy="125" r="78" class="vault-door-ring"/>
+            <circle cx="160" cy="125" r="34" class="vault-dial-outer"/>
+            <g id="vaultDialMark" transform="rotate(0 160 125)">
+              <rect x="157" y="95" width="6" height="24" rx="3" class="vault-dial-mark"/>
+            </g>
+            <circle cx="160" cy="125" r="10" class="vault-dial-center"/>
+          </g>
+          <g id="coinBurst" class="coin-burst"></g>
+        </g>
+      </svg>
+    </div>
+
+    <div class="balance-card">
+      <span class="balance-label">الرصيد الحالي</span>
+      <div class="balance-amount">
+        <span id="balanceValue">0</span>
+        <span class="currency-tag" id="currencyTagHome">﷼</span>
+      </div>
+      <div class="balance-split">
+        <div class="split-item in">
+          <svg viewBox="0 0 24 24" width="16" height="16"><path d="M12 4l7 7h-4v9h-6v-9H5z" fill="currentColor"/></svg>
+          <div><span id="monthIncome">0</span><small>دخل الشهر</small></div>
+        </div>
+        <div class="split-item out">
+          <svg viewBox="0 0 24 24" width="16" height="16"><path d="M12 20l-7-7h4V4h6v9h4z" fill="currentColor"/></svg>
+          <div><span id="monthExpense">0</span><small>مصروف الشهر</small></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="quick-actions">
+      <button class="qa-btn qa-add" id="btnQuickIncome">
+        <span class="qa-icon">+</span> إيداع
+      </button>
+      <button class="qa-btn qa-sub" id="btnQuickExpense">
+        <span class="qa-icon">−</span> مصروف
+      </button>
+    </div>
+
+    <div class="section-block">
+      <div class="section-head">
+        <h3>آخر العمليات</h3>
+        <button class="link-btn" data-nav="transactions">عرض الكل</button>
+      </div>
+      <div id="recentList" class="tx-list"></div>
+    </div>
+  </section>
+
+  <!-- ===== العمليات ===== -->
+  <section class="screen" id="screen-transactions" data-screen="transactions">
+    <header class="sub-header">
+      <h2>العمليات</h2>
+      <button class="icon-btn" id="btnFilter" aria-label="تصفية">
+        <svg viewBox="0 0 24 24" width="20" height="20"><path d="M3 5h18l-7 8v6l-4 2v-8z" fill="currentColor"/></svg>
+      </button>
+    </header>
+    <div class="filter-chips" id="filterChips">
+      <button class="chip active" data-filter="all">الكل</button>
+      <button class="chip" data-filter="income">دخل</button>
+      <button class="chip" data-filter="expense">مصروف</button>
+    </div>
+    <div id="fullList" class="tx-list tx-list-grouped"></div>
+    <div class="empty-state hidden" id="txEmpty">
+      <svg viewBox="0 0 24 24" width="48" height="48"><path d="M4 4h16v16H4z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="3 3"/></svg>
+      <p>ما فيه عمليات بعد. سجّل أول عملية من زر «+»</p>
+    </div>
+  </section>
+
+  <!-- ===== الأهداف والتمنيات ===== -->
+  <section class="screen" id="screen-goals" data-screen="goals">
+    <header class="sub-header">
+      <h2>الأهداف والتمنيات</h2>
+      <button class="icon-btn primary" id="btnAddGoal" aria-label="إضافة هدف">
+        <svg viewBox="0 0 24 24" width="20" height="20"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+    </header>
+    <div class="tabs-mini">
+      <button class="tab-mini active" data-goaltab="wishlist">قائمة التمنيات</button>
+      <button class="tab-mini" data-goaltab="savings">أهداف الادخار</button>
+    </div>
+    <div id="wishlistPane" class="pane-mini">
+      <div id="wishlistList" class="card-list"></div>
+      <div class="empty-state hidden" id="wishEmpty">
+        <svg viewBox="0 0 24 24" width="48" height="48"><path d="M12 21s-7-4.5-9.5-9A5.5 5.5 0 0 1 12 6a5.5 5.5 0 0 1 9.5 6c-2.5 4.5-9.5 9-9.5 9z" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+        <p>ضيف أشياء تتمناها وشوف كم باقي عليها</p>
+      </div>
+    </div>
+    <div id="savingsPane" class="pane-mini hidden">
+      <div id="savingsList" class="card-list"></div>
+      <div class="empty-state hidden" id="savingsEmpty">
+        <svg viewBox="0 0 24 24" width="48" height="48"><path d="M12 2v20M2 12h20" stroke="currentColor" stroke-width="1.5"/></svg>
+        <p>سوّي هدف ادخار وحدد تاريخه ومبلغه</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== الإحصائيات ===== -->
+  <section class="screen" id="screen-stats" data-screen="stats">
+    <header class="sub-header">
+      <h2>الإحصائيات</h2>
+    </header>
+    <div class="month-switcher">
+      <button id="prevMonth" class="icon-btn small">‹</button>
+      <span id="statsMonthLabel">—</span>
+      <button id="nextMonth" class="icon-btn small">›</button>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-card-head">
+        <h3>المصروفات حسب التصنيف</h3>
+      </div>
+      <div class="pie-wrap">
+        <svg id="pieSvg" viewBox="0 0 200 200" class="pie-svg"></svg>
+        <div class="pie-center">
+          <span id="pieTotal">0</span>
+          <small>إجمالي المصروف</small>
+        </div>
+      </div>
+      <div id="pieLegend" class="pie-legend"></div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-card-head">
+        <h3>الدخل مقابل المصروف</h3>
+      </div>
+      <div id="barChart" class="bar-chart"></div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-card-head">
+        <h3>حد الميزانية الشهري</h3>
+        <button class="link-btn" id="btnSetBudget">تحديد</button>
+      </div>
+      <div id="budgetBars" class="budget-bars"></div>
+      <div class="empty-state hidden" id="budgetEmpty">
+        <p>حدد ميزانية لكل تصنيف عشان تتابع صرفك</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== الإعدادات ===== -->
+  <section class="screen" id="screen-settings" data-screen="settings">
+    <header class="sub-header">
+      <h2>الإعدادات</h2>
+    </header>
+
+    <div class="settings-group">
+      <div class="settings-row">
+        <div>
+          <span>العملة</span>
+          <small>تُطبّق على كل المبالغ</small>
+        </div>
+        <select id="currencySelect">
+          <option value="﷼">ريال سعودي ﷼</option>
+          <option value="د.إ">درهم إماراتي د.إ</option>
+          <option value="د.ك">دينار كويتي د.ك</option>
+          <option value="ج.م">جنيه مصري ج.م</option>
+          <option value="$">دولار $</option>
+          <option value="€">يورو €</option>
+        </select>
+      </div>
+
+      <div class="settings-row">
+        <div>
+          <span>الوضع الليلي</span>
+          <small>تصميم مريح للعين ليلاً</small>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="darkModeToggle">
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="settings-row">
+        <div>
+          <span>قفل بالرمز</span>
+          <small>احمِ بياناتك برمز مكوّن من 4 أرقام</small>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="pinToggle">
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="settings-row">
+        <div>
+          <span>تنبيهات المصروف</span>
+          <small>تنبيه عند تجاوز حد الميزانية</small>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="alertsToggle" checked>
+          <span class="slider"></span>
+        </label>
+      </div>
+    </div>
+
+    <div class="settings-group">
+      <h4 class="group-title">التصنيفات</h4>
+      <div id="categoryManageList" class="category-manage-list"></div>
+      <button class="text-btn" id="btnAddCategory">+ إضافة تصنيف جديد</button>
+    </div>
+
+    <div class="settings-group">
+      <h4 class="group-title">البيانات</h4>
+      <button class="text-btn" id="btnExportData">تصدير نسخة احتياطية (JSON)</button>
+      <button class="text-btn" id="btnImportData">استيراد نسخة احتياطية</button>
+      <input type="file" id="importFileInput" accept="application/json" class="hidden">
+      <button class="text-btn danger" id="btnResetData">حذف كل البيانات</button>
+    </div>
+
+    <p class="app-version">الخزنة · نسخة 1.0 · بياناتك محفوظة على جهازك فقط</p>
+  </section>
+
+  <!-- ===== شريط التنقل السفلي ===== -->
+  <nav class="bottom-nav">
+    <button class="nav-btn active" data-nav="home">
+      <svg viewBox="0 0 24 24" width="22" height="22"><path d="M12 3l9 8h-3v9h-5v-6H11v6H6v-9H3z" fill="currentColor"/></svg>
+      <span>الرئيسية</span>
+    </button>
+    <button class="nav-btn" data-nav="transactions">
+      <svg viewBox="0 0 24 24" width="22" height="22"><path d="M4 6h16M4 12h16M4 18h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      <span>العمليات</span>
+    </button>
+    <button class="nav-fab" id="btnFab" aria-label="إضافة عملية">
+      <svg viewBox="0 0 24 24" width="26" height="26"><path d="M12 5v14M5 12h14" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg>
+    </button>
+    <button class="nav-btn" data-nav="goals">
+      <svg viewBox="0 0 24 24" width="22" height="22"><path d="M12 21s-7-4.5-9.5-9A5.5 5.5 0 0 1 12 6a5.5 5.5 0 0 1 9.5 6c-2.5 4.5-9.5 9-9.5 9z" fill="currentColor"/></svg>
+      <span>الأهداف</span>
+    </button>
+    <button class="nav-btn" data-nav="stats">
+      <svg viewBox="0 0 24 24" width="22" height="22"><path d="M4 20V10M11 20V4M18 20v-7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+      <span>الإحصائيات</span>
+    </button>
+  </nav>
+</div>
+
+<!-- ===== نافذة إضافة عملية ===== -->
+<div class="sheet-backdrop hidden" id="txSheetBackdrop">
+  <div class="sheet" id="txSheet">
+    <div class="sheet-handle"></div>
+    <div class="tx-type-switch">
+      <button class="type-btn active" data-type="expense" id="typeExpenseBtn">مصروف</button>
+      <button class="type-btn" data-type="income" id="typeIncomeBtn">دخل</button>
+    </div>
+    <div class="amount-input-wrap">
+      <input type="number" id="txAmount" placeholder="0" inputmode="decimal">
+      <span class="currency-tag" id="currencyTagSheet">﷼</span>
+    </div>
+    <div class="field">
+      <label>التصنيف</label>
+      <div id="categoryPicker" class="category-picker"></div>
+    </div>
+    <div class="field">
+      <label>ملاحظة (اختياري)</label>
+      <input type="text" id="txNote" placeholder="مثال: عشاء مع الأصدقاء">
+    </div>
+    <div class="field">
+      <label>التاريخ</label>
+      <input type="date" id="txDate">
+    </div>
+    <button class="primary-btn" id="btnSaveTx">حفظ العملية</button>
+    <button class="text-btn" id="btnCancelTx">إلغاء</button>
+  </div>
+</div>
+
+<!-- ===== نافذة إضافة هدف/تمنية ===== -->
+<div class="sheet-backdrop hidden" id="goalSheetBackdrop">
+  <div class="sheet" id="goalSheet">
+    <div class="sheet-handle"></div>
+    <h3 id="goalSheetTitle">تمنية جديدة</h3>
+    <div class="field">
+      <label>الاسم</label>
+      <input type="text" id="goalName" placeholder="مثال: سماعات لاسلكية">
+    </div>
+    <div class="field">
+      <label>المبلغ المطلوب</label>
+      <input type="number" id="goalTarget" placeholder="0" inputmode="decimal">
+    </div>
+    <div class="field" id="goalDateField">
+      <label>تاريخ مستهدف (اختياري)</label>
+      <input type="date" id="goalDate">
+    </div>
+    <button class="primary-btn" id="btnSaveGoal">حفظ</button>
+    <button class="text-btn" id="btnCancelGoal">إلغاء</button>
+  </div>
+</div>
+
+<!-- ===== نافذة إضافة مبلغ لهدف ===== -->
+<div class="sheet-backdrop hidden" id="addToGoalBackdrop">
+  <div class="sheet" id="addToGoalSheet">
+    <div class="sheet-handle"></div>
+    <h3>إضافة مبلغ</h3>
+    <div class="amount-input-wrap">
+      <input type="number" id="addToGoalAmount" placeholder="0" inputmode="decimal">
+      <span class="currency-tag" id="currencyTagGoalAdd">﷼</span>
+    </div>
+    <button class="primary-btn" id="btnConfirmAddToGoal">إضافة</button>
+    <button class="text-btn" id="btnCancelAddToGoal">إلغاء</button>
+  </div>
+</div>
+
+<!-- ===== نافذة إضافة/تعديل تصنيف ===== -->
+<div class="sheet-backdrop hidden" id="categorySheetBackdrop">
+  <div class="sheet" id="categorySheet">
+    <div class="sheet-handle"></div>
+    <h3>تصنيف جديد</h3>
+    <div class="field">
+      <label>الاسم</label>
+      <input type="text" id="categoryName" placeholder="مثال: ترفيه">
+    </div>
+    <div class="field">
+      <label>اللون</label>
+      <div id="colorPicker" class="color-picker"></div>
+    </div>
+    <button class="primary-btn" id="btnSaveCategory">حفظ</button>
+    <button class="text-btn" id="btnCancelCategory">إلغاء</button>
+  </div>
+</div>
+
+<!-- ===== نافذة تحديد ميزانية ===== -->
+<div class="sheet-backdrop hidden" id="budgetSheetBackdrop">
+  <div class="sheet" id="budgetSheet">
+    <div class="sheet-handle"></div>
+    <h3>حدود الميزانية الشهرية</h3>
+    <div id="budgetFields" class="budget-fields"></div>
+    <button class="primary-btn" id="btnSaveBudget">حفظ</button>
+    <button class="text-btn" id="btnCancelBudget">إلغاء</button>
+  </div>
+</div>
+
+<!-- ===== توست تأكيد ===== -->
+<div class="toast hidden" id="toast"></div>
+
+<script src="app.js"></script>
+</body>
+</html>

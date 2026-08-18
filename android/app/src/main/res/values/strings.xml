@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">الخزنة</string>
+    <string name="title_activity_main">الخزنة</string>
+    <string name="package_name">com.phoenix.khazna</string>
+    <string name="custom_url_scheme">com.phoenix.khazna</string>
+</resources>

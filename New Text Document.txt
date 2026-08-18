@@ -1,0 +1,5 @@
+
+
+npx cap copy
+
+npx cap open android
